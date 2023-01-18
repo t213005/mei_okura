@@ -1,40 +1,19 @@
 import streamlit as st
-import openai_secret_manager
-
-# Get API Key
-secrets = openai_secret_manager.get_secret("openai")
-api_key = secrets["api_key"]
-
-# Use the OpenAI API to generate text
-import openai
-openai.api_key = api_key
-
-def generate_text(prompt):
-    completions = openai.Completion.create(
-        engine="text-davinci-002",
-        prompt=prompt,
-        max_tokens=1024,
-        n=1,
-        stop=None,
-        temperature=0.5,
-    )
-
-    message = completions.choices[0].text
-    return message.strip()
+import random
 
 def main():
-    st.title("Text Generator")
-    st.write("This app helps you generate text based on your input.")
+    st.title("Omikuji App")
+    st.write("This app helps you draw a fortune.")
 
-    # Get keywords from user
-    keywords = st.text_input("Enter keywords:")
+    # Draw a fortune
+    fortunes = ["大吉", "中吉", "小吉", "吉", "末吉", "凶", "大凶"]
+    fortune = random.choice(fortunes)
 
-    # Generate text
-    generated_text = generate_text(f"Write a short story based on the following keywords: {keywords}")
-
-    # Show the generated text
-    st.write("Generated text:")
-    st.write(generated_text)
+    # Show the fortune
+    st.write("Your fortune is : " + fortune)
+    # Show the fortune image
+    img_path = "img/" + fortune + ".png"
+    st.image(img_path, width=300)
 
 if __name__ == "__main__":
     main()
