@@ -1,16 +1,19 @@
 import streamlit as st
-import random
+from transformers import AutoModelWithLMHead, AutoTokenizer
 
-def main():
-    st.title("Omikuji App")
-    st.write("This app helps you draw a fortune.")
+# Load the pre-trained model and tokenizer
+model = AutoModelWithLMHead.from_pretrained("text-davinci-002")
+tokenizer = AutoTokenizer.from_pretrained("text-davinci-002")
 
-    # Draw a fortune
-    fortunes = ["大吉", "中吉", "小吉", "吉", "半吉", "末吉", "凶", "大凶"]
-    fortune = random.choice(fortunes)
+st.title("Text Generation App")
 
-    # Show the fortune
-    st.write("Your fortune is: " + fortune)
+# Get the user's input
+prompt = st.text_input("Enter your prompt:")
 
-if __name__ == "__main__":
-    main()
+# Generate text
+if st.button("Generate text"):
+    input_ids = tokenizer.encode(prompt, return_tensors="pt").to('cuda')
+    output = model.generate(input_ids, max_length=100, do_sample=True, top_p=0.95, top_k=50)
+    generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
+    st.write("Generated text:")
+    st.write(generated_text)
