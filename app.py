@@ -1,39 +1,40 @@
 import streamlit as st
-from scipy.optimize import minimize
-import numpy as np
-import matplotlib.pyplot as plt
+import openai_secret_manager
+
+# Get API Key
+secrets = openai_secret_manager.get_secret("openai")
+api_key = secrets["api_key"]
+
+# Use the OpenAI API to generate text
+import openai
+openai.api_key = api_key
+
+def generate_text(prompt):
+    completions = openai.Completion.create(
+        engine="text-davinci-002",
+        prompt=prompt,
+        max_tokens=1024,
+        n=1,
+        stop=None,
+        temperature=0.5,
+    )
+
+    message = completions.choices[0].text
+    return message.strip()
 
 def main():
-    st.title("Function Optimizer")
-    st.write("This app helps you find the minimum value of a function.")
+    st.title("Text Generator")
+    st.write("This app helps you generate text based on your input.")
 
-    # Get function from user
-    func_str = st.text_input("Enter a function in terms of x:")
+    # Get keywords from user
+    keywords = st.text_input("Enter keywords:")
 
-    # Define the optimization function
-    def func(x):
-        return eval(func_str)
+    # Generate text
+    generated_text = generate_text(f"Write a short story based on the following keywords: {keywords}")
 
-    # Get initial guess from user
-    x0 = st.number_input("Enter an initial guess for x:")
-
-    # Get optimization method
-    method = st.selectbox("Select an optimization method:", ["BFGS", "CG", "L-BFGS-B", "SLSQP"])
-
-    # Find the minimum value
-    res = minimize(func, x0, method=method)
-
-    # Show results
-    st.write(f"Minimum value: {res.fun}")
-    st.write(f"Minimum occurs at x = {res.x}")
-
-    # Plot the function and optimization result
-    x = np.linspace(-10, 10, 100)
-    y = func(x)
-    plt.plot(x, y, label="Function")
-    plt.scatter(res.x, res.fun, c='r', label="Minimum")
-    plt.legend()
-    st.pyplot()
+    # Show the generated text
+    st.write("Generated text:")
+    st.write(generated_text)
 
 if __name__ == "__main__":
     main()
